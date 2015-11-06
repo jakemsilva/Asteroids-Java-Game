@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -21,7 +23,7 @@ import java.util.TimerTask;
 
 import javax.swing.*;
 
-public class Screen extends JPanel implements ComponentListener, ActionListener, MouseListener, MouseMotionListener {
+public class Screen extends JPanel implements ComponentListener, ActionListener, MouseListener, MouseMotionListener, KeyListener {
 	//Set system variables
 	private SpaceShip ship;
 	private final int NUM_STARS = 100;
@@ -58,6 +60,9 @@ public class Screen extends JPanel implements ComponentListener, ActionListener,
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		addComponentListener(this);
+		addKeyListener(this);
+		setFocusable(true);
+		requestFocusInWindow();
 		lives = 3;
 		score = 0;
 		//Create ship object
@@ -123,8 +128,6 @@ public class Screen extends JPanel implements ComponentListener, ActionListener,
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		//timerCount--;
-		//System.out.println(timerCount);
 		//loop through asteroid array and move them based on width and height of window
 		for(int i = 0; i < ast.size(); i++){
 			int w = getWidth();
@@ -170,27 +173,14 @@ public class Screen extends JPanel implements ComponentListener, ActionListener,
 		ship.setShooting(true);
 		Sound.play(System.getProperty("user.dir") + "/laser.wav");
 		int shotX = e.getX();
-		int shotY = e.getY() - 20;
-		for(int i = 0; i < ast.size(); i++){
-			if(ast.get(i).getX() > shotX){
-				if (ast.get(i).getTracker().contains(new Point(ast.get(i).getX(), shotY + (ship.getHeight() / 2)))){
-					ast.get(i).setHit(true);
-					updateScore();
-				}
-			}
-		}
+		int shotY = e.getY() - ship.MOUSE_OFFSET;
+		processShot(shotX, shotY);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		//end shooting on mouse release
-		ship.setShooting(false);
-		for(int i = 0; i < ast.size(); i++){
-			if(ast.get(i).getHit()){
-				ast.remove(i);
-			}
-		}
-
+		destroyAsteroid();
 	}
 
 	@Override
@@ -251,5 +241,58 @@ public class Screen extends JPanel implements ComponentListener, ActionListener,
 	}
 	public void gameOver(){
 		gameOver = true;
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		int keyCode = e.getKeyCode();
+		if(keyCode == 32){
+			//get x and y of mouse
+			int x = MouseInfo.getPointerInfo().getLocation().x - 16;
+			int y = MouseInfo.getPointerInfo().getLocation().y - 97;
+			processShot(x,y);
+		}
+
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		ship.setShooting(false);
+		for(int i = 0; i < ast.size(); i++){
+			if(ast.get(i).getHit()){
+				ast.remove(i);
+			}
+		}
+
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void processShot(int shotX, int shotY){
+		ship.setShooting(true);
+		Sound.play(System.getProperty("user.dir") + "/laser.wav");
+		for(int i = 0; i < ast.size(); i++){
+			if(ast.get(i).getX() > shotX){
+				if (ast.get(i).getTracker() != null && ast.get(i).getTracker().contains(new Point(ast.get(i).getX(), shotY + (ship.getHeight() / 2)))){
+					ast.get(i).setHit(true);
+					updateScore();
+				}
+			}
+		}
+	}
+
+	public void destroyAsteroid(){
+		ship.setShooting(false);
+		for(int i = 0; i < ast.size(); i++){
+			if(ast.get(i).getHit()){
+				ast.remove(i);
+			}
+		}
 	}
 }

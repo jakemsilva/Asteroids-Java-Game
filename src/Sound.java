@@ -11,8 +11,7 @@ public class Sound {
         new Thread(new Runnable() { 
             public void run() {
                 try {
-                	System.out.println(System.getProperty("user.dir")); 
-                    Clip clip = AudioSystem.getClip();
+                	Clip clip = AudioSystem.getClip();
                     AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(fileName));
                     clip.open(inputStream);
                     clip.start(); 

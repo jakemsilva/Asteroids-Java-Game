@@ -25,7 +25,7 @@ public class SpaceShip {
 	private int[] xWindow = new int[4];
 	private int[] yWindow = new int[4];
 	private Polygon tracker;
-	private final int MOUSE_OFFSET = 25;
+	public final int MOUSE_OFFSET = 25;
 	
 	/*
 	 * Constructor that generates spaceship x and y position randomly, height and width, default color and default shooting behavior
